@@ -41,13 +41,14 @@ const Signup = () => {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });
+      console.log(res.data.success);
       if (res.data.success) {
         navigate("/login");
         toast.success(res.data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.res.data.message);
+      toast.error(error.response.data.message);
     }
   };
   return (
@@ -110,18 +111,18 @@ const Signup = () => {
                   checked={input.role === "student"}
                   onChange={changeEventHandler}
                 />
-                <Label htmlFor="option-one">Student</Label>
+                <Label htmlFor="r1">Student</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Input
-                  className="cursor-pointer"
                   type="radio"
                   name="role"
                   value="recruiter"
                   checked={input.role === "recruiter"}
                   onChange={changeEventHandler}
+                  className="cursor-pointer"
                 />
-                <Label htmlFor="option-two">Recruiter</Label>
+                <Label htmlFor="r2">Recruiter</Label>
               </div>
             </RadioGroup>
             <div className="flex items-center gap-2">

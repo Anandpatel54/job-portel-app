@@ -21,17 +21,16 @@ const Login = () => {
   };
   const submitHandler = async (e) => {
     e.preventDefault();
-    const formData = new formData();
+    const formData = new FormData(); //formdata object
     formData.append("email", input.email);
     formData.append("password", input.password);
     formData.append("role", input.role);
     try {
-      const res = await axios.post(`${USER_API_END_POINT}/login`, input, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const res = await axios.post(`${USER_API_END_POINT}/login`, formData, {
+        headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
+      console.log(res.data.success);
       if (res.data.success) {
         navigate("/");
         toast.success(res.data.message);
