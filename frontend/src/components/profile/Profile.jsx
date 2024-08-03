@@ -7,12 +7,14 @@ import { Label } from "../ui/label";
 import AppliedJobTable from "../appliedJob/AppliedJobTable";
 import { useState } from "react";
 import UpdateProfileDialog from "../updateProfileDialog/UpdateProfileDialog";
+import { useSelector } from "react-redux";
 
-const skills = ["Html", "css", "javaScript", "Reactjs"];
+//const skills = ["Html", "css", "javaScript", "Reactjs"];
 const isResume = true;
 
 const Profile = () => {
   const [open, setOpen] = useState(false);
+  const { user } = useSelector((store) => store.auth);
   return (
     <div>
       <Navbar />
@@ -26,11 +28,8 @@ const Profile = () => {
               />
             </Avatar>
             <div>
-              <h1 className="font-medium text-xl">Full Name</h1>
-              <p>
-                Lorem ipsum dolor sit amet. Lorem, ipsum dolor sit amet
-                consectetur adipisicing elit. Aliquid, veritatis?
-              </p>
+              <h1 className="font-medium text-xl">{user?.fullname}</h1>
+              <p>{user?.profile?.bio}</p>
             </div>
           </div>
           <Button
@@ -44,18 +43,20 @@ const Profile = () => {
         <div className="my-5">
           <div className="flex items-center gap-3 my-4">
             <Mail />
-            <span>patel@gmail.com</span>
+            <span>{user?.email}</span>
           </div>
           <div className="flex items-center gap-3 my-4">
             <Contact />
-            <span>6234127752</span>
+            <span>{user?.phoneNumber}</span>
           </div>
         </div>
         <div className="my-5">
           <h1 className="font-bold text-md">Skills</h1>
           <div className="flex items-center gap-2 mt-4">
-            {skills.length !== 0 ? (
-              skills.map((item, index) => <Badge key={index}>{item}</Badge>)
+            {user?.profile?.skills.length !== 0 ? (
+              user?.profile?.skills.map((item, index) => (
+                <Badge key={index}>{item}</Badge>
+              ))
             ) : (
               <span>NA</span>
             )}
@@ -66,10 +67,10 @@ const Profile = () => {
           {isResume ? (
             <a
               target="blank"
-              href=""
-              className="text-blue-500 hover:underline cursor-pointer"
+              href={user?.profile?.resume}
+              className="text-blue-500 w-full hover:underline cursor-pointer"
             >
-              Anand patel
+              {user?.profile?.resumeOriginalName}
             </a>
           ) : (
             <span>NA</span>
