@@ -7,35 +7,65 @@ import cloudinary from "../utils/cloudinary.js";
 export const register = async (req, res) => {
   try {
     const { fullname, email, phoneNumber, password, role } = req.body;
-    if (!fullname || !email || !phoneNumber || !password || !role) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Somthing is Missing" });
-    }
 
-    const user = await User.findOne({ email });
-    if (user) {
+    // Check for all required fields
+    if (!fullname || !email || !phoneNumber || !password || !role) {
       return res.status(400).json({
+        message: "All fields (fullname, email, phoneNumber, password, role) are required.",
         success: false,
-        message: "User already exist with this email !",
       });
     }
+
+    // Check for profile photo presence
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Profile photo is required.",
+        success: false,
+      });
+    }
+
+    // Process the profile photo
+    const file = req.file;
+    const fileUri = getDataUri(file);
+    const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        message: "A user with this email already exists.",
+        success: false,
+      });
+    }
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new user
     await User.create({
       fullname,
       email,
       phoneNumber,
       password: hashedPassword,
       role,
+      profile: {
+        profilePhoto: cloudResponse.secure_url,
+      },
     });
-    return res
-      .status(201)
-      .json({ success: true, message: " Account created successfully." });
+
+    return res.status(201).json({
+      message: "Account created successfully.",
+      success: true,
+    });
+
   } catch (error) {
-    console.log(error);
+    console.error("Error during registration:", error);
+    return res.status(500).json({
+      message: "An internal server error occurred.",
+      success: false,
+    });
   }
 };
-
 export const login = async (req, res) => {
   try {
     const { email, password, role } = req.body;

@@ -14,20 +14,20 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
 import { USER_API_END_POINT } from "@/utils/constant";
-import { setLoading, setUser } from "@/redux/authSlice";
+import { setUser } from "@/redux/authSlice";
 
 const UpdateProfileDialog = ({ open, setOpen }) => {
-  const [loading, setLoadind] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { user } = useSelector((store) => store.auth);
-  const [input, setInput] = useState({
-    fullname: user?.fullname,
-    email: user?.email,
-    phoneNumber: user?.phoneNumber,
-    bio: user?.profile?.bio,
-    skills: user?.profile?.skills?.map((skill) => skill),
-    file: user?.profile?.resume,
-  });
 
+  const [input, setInput] = useState({
+    fullname: user?.fullname || "",
+    email: user?.email || "",
+    phoneNumber: user?.phoneNumber || "",
+    bio: user?.profile?.bio || "",
+    skills: user?.profile?.skills?.map((skill) => skill) || "",
+    file: user?.profile?.resume || "",
+  });
   const dispatch = useDispatch();
 
   const changeEventHandlar = (e) => {
@@ -35,7 +35,7 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
   };
 
   const fileChangeHandlar = (e) => {
-    const file = e.target.file?.[0];
+    const file = e.target.files?.[0];
     setInput({ ...input, file });
   };
 
@@ -53,7 +53,7 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
     try {
       setLoading(true);
       const res = await axios.post(
-        `${USER_API_END_POINT}/Profile/update`,
+        `${USER_API_END_POINT}/profile/update`,
         formData,
         {
           headers: {
@@ -157,11 +157,11 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
                 </Label>
                 <Input
                   id="file"
-                  className="col-span-3"
                   name="file"
                   type="file"
                   accept="application/pdf"
                   onChange={fileChangeHandlar}
+                  className="col-span-3"
                 />
               </div>
             </div>
