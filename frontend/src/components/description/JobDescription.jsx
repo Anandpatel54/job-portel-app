@@ -2,34 +2,67 @@ import { useParams } from "react-router-dom";
 import Navbar from "../shared/Navbar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { JOB_API_END_POINT } from "@/utils/constant";
+import { APPLICATION_API_END_POINT, JOB_API_END_POINT } from "@/utils/constant";
 import { useDispatch, useSelector } from "react-redux";
 import { setSingleJob } from "@/redux/jobSlice";
+import { toast } from "sonner";
 
 const JobDescription = () => {
-  const isApplied = true;
-  const parmas = useParams();
-  const jobId = parmas.id;
   const { singleJob } = useSelector((store) => store.job);
   const { user } = useSelector((store) => store.auth);
+  const isIntiallyApplied =
+    singleJob?.applications?.some(
+      (application) => application.applicant === user?._id
+    ) || false;
+  const [isApplied, setIsApplied] = useState(isIntiallyApplied);
+
+  const params = useParams();
+  const jobId = params.id;
   const dispatch = useDispatch();
 
+  const applyJobHandlar = async () => {
+    try {
+      const res = await axios.get(
+        `${APPLICATION_API_END_POINT}/apply/${jobId}`,
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        setIsApplied(true); // Update the local state
+        const updatedSingleJob = {
+          ...singleJob,
+          applications: [...singleJob.applications, { applicant: user?._id }],
+        };
+        dispatch(setSingleJob(updatedSingleJob)); // helps us to real time UI update
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  };
+
   useEffect(() => {
-    const fatchSingleJob = async () => {
+    const fetchSingleJob = async () => {
       try {
         const res = await axios.get(`${JOB_API_END_POINT}/get/${jobId}`, {
           withCredentials: true,
         });
         if (res.data.success) {
           dispatch(setSingleJob(res.data.job));
+          setIsApplied(
+            res.data.job.applications.some(
+              (application) => application.applicant === user?._id
+            )
+          ); // Ensure the state is in sync with fetched data
         }
       } catch (error) {
         console.log(error);
       }
     };
-    fatchSingleJob();
+    fetchSingleJob();
   }, [jobId, dispatch, user?._id]);
   return (
     <>
@@ -51,7 +84,7 @@ const JobDescription = () => {
             </div>
           </div>
           <Button
-            onClick={isApplied ? null : applyJobHandler}
+            onClick={isApplied ? null : applyJobHandlar}
             disabled={isApplied}
             className={`rounded-lg ${
               isApplied
