@@ -76,15 +76,38 @@ export const updateCompany = async (req, res) => {
   try {
     const { name, description, website, location } = req.body;
     const file = req.file;
-    //cloudinary se aayega
-    const fileUri = getDataUri(file);
-    const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-    const logo = cloudResponse.secure_url;
 
-    const updateData = { name, description, website, location,logo };
+    // Validate input fields
+    if (!name || !description || !website || !location) {
+      return res.status(400).json({
+        message:
+          "All fields (name, description, website, location) are required.",
+        success: false,
+      });
+    }
 
+    // Prepare update data
+    let logo = null;
+    if (file) {
+      try {
+        const fileUri = getDataUri(file);
+        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+        logo = cloudResponse.secure_url;
+      } catch (uploadError) {
+        return res.status(500).json({
+          message: "Failed to upload logo to Cloudinary.",
+          success: false,
+          error: uploadError.message,
+        });
+      }
+    }
+
+    const updateData = { name, description, website, location, logo };
+
+    // Update company in the database
     const company = await Company.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
+      runValidators: true, // Apply validation rules
     });
 
     if (!company) {
@@ -93,11 +116,18 @@ export const updateCompany = async (req, res) => {
         success: false,
       });
     }
+
     return res.status(200).json({
-      message: "Company information updated.",
+      message: "Company information updated successfully.",
       success: true,
+      data: company,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error updating company:", error); // Improved logging for debugging
+    return res.status(500).json({
+      message: "Internal server error.",
+      success: false,
+      error: error.message, // Provide the error message for debugging
+    });
   }
 };
