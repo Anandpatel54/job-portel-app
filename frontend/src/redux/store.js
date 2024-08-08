@@ -12,20 +12,24 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import companySlice from "./companySlice";
+import adminJobSlice from "./adminJobSlice";
 
 const persistConfig = {
   key: "root",
   version: 1,
   storage,
 };
+
 const rootReducer = combineReducers({
   auth: authSlice,
   job: jobSlice,
   company: companySlice,
+  adminJob: adminJobSlice,
 });
+
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-export const store = configureStore({
+const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -34,5 +38,4 @@ export const store = configureStore({
       },
     }),
 });
-
 export default store;

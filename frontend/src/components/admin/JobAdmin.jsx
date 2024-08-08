@@ -6,10 +6,11 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import AdminJobsTable from "./AdminJobsTable";
 import useGetAllAdminJobs from "@/hooks/useGetAllAdminJobs";
-import { setSearchJobByText } from "@/redux/jobSlice";
+import { setSearchJobByText } from "@/redux/adminJobSlice";
+
 
 const JobAdmin = () => {
-  useGetAllAdminJobs()
+  useGetAllAdminJobs();
   const navigate = useNavigate();
   const [input, setInput] = useState("");
   const dispatch = useDispatch();
