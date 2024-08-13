@@ -34,7 +34,17 @@ const AppliedJobTable = () => {
                 <TableCell>{appliedJob?.job?.title}</TableCell>
                 <TableCell>{appliedJob?.job?.company.name}</TableCell>
                 <TableCell className="text-right">
-                  <Badge>{appliedJob?.status}</Badge>
+                  <Badge
+                    className={`${
+                      appliedJob?.status === "rejected"
+                        ? "bg-red-600"
+                        : appliedJob.status === "pending"
+                        ? "bg-gray-400"
+                        : "bg-green-600"
+                    }`}
+                  >
+                    {appliedJob.status.toUpperCase()}
+                  </Badge>
                 </TableCell>
               </TableRow>
             ))
