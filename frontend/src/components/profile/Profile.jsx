@@ -8,13 +8,16 @@ import AppliedJobTable from "../appliedJob/AppliedJobTable";
 import { useState } from "react";
 import UpdateProfileDialog from "../updateProfileDialog/UpdateProfileDialog";
 import { useSelector } from "react-redux";
+import useGetAllAppliedjob from "@/hooks/useGetAllAppliedjob";
 
 //const skills = ["Html", "css", "javaScript", "Reactjs"];
 const isResume = true;
 
 const Profile = () => {
+  useGetAllAppliedjob();
   const [open, setOpen] = useState(false);
   const { user } = useSelector((store) => store.auth);
+  
   return (
     <div>
       <Navbar />
